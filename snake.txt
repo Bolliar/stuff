@@ -4,7 +4,9 @@
 #include <winuser.h>
 #include <list>
 #include <thread>
+#include <mmsystem.h>
 using namespace std;
+#define sndPlaySoundW
 int nScreenWidth = 120;
 int nScreenHeight = 30;
 int messageWidth = 30;
@@ -31,6 +33,7 @@ int main() {
 	bool Dead = false;
 	bool keyleft = false, keyright = false, keyleftOld = false, keyrightOld = false;
 	bool keyup = false, keydown = false, keyupOld = false, keydownOld = false;
+	bool ESCkey = false;
 	while (!Dead) {
 
 		//this_thread::sleep_for(200ms);
@@ -39,10 +42,18 @@ int main() {
 		auto t1 = chrono::system_clock::now();
 		while ((chrono::system_clock::now() - t1) < ((SnakeDirection % 2 == 1) ? 120ms : 200ms))
 		{
+			ESCkey = (0x8000 & GetAsyncKeyState(VK_ESCAPE));
 			keyright = (0x8000 & GetAsyncKeyState(VK_RIGHT));
 			keyleft = (0x8000 & GetAsyncKeyState(VK_LEFT));
 			keydown = (0x8000 & GetAsyncKeyState(VK_DOWN));
 			keyup = (0x8000 & GetAsyncKeyState(VK_UP));
+
+			if (ESCkey) {
+				int PAUSEID = MessageBox(NULL, &screen[nScreenWidth], L"Pause", MB_OK);
+				if (MB_OK) {
+					continue;
+				}
+			}
 
 			if (keyright && !keyrightOld && SnakeDirection != 3) {
 				SnakeDirection = 1;
@@ -131,7 +142,7 @@ int main() {
 		case IDCANCEL:
 			return 0;
 		case IDRETRY:
-			main(); //I know this is a terrible idea, I don't care.
+			main();
 		};
 		return 0;
 	};
